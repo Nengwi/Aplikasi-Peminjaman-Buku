@@ -19,22 +19,24 @@ class BookController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-{
-    return view('books.create'); // Kita akan buat file ini setelah ini
-}
+    {
+        return view('books.create');
+    }
+    // Untuk menampilkan form tambah buku
 
-public function store(Request $request)
-{
-    $request->validate([
-        'judul' => 'required',
-        'penulis' => 'required',
-        'stok' => 'required|numeric',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'judul' => 'required',
+            'penulis' => 'required',
+            'stok' => 'required|numeric',
+        ]);
+        // Menyimpan data buku ke database
 
-    \App\Models\Book::create($request->all());
+        \App\Models\Book::create($request->all());
 
-    return redirect()->route('books.index')->with('success', 'Buku berhasil ditambah!');
-}
+        return redirect()->route('books.index')->with('success', 'Buku berhasil ditambah!');
+    }
 
     /**
      * Display the specified resource.
