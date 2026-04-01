@@ -20,14 +20,13 @@ export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
-        // Pakai relative dan z-0 agar background tetap di bawah
         <div className="min-h-screen bg-[#0f172a] relative z-0 overflow-hidden font-sans">
             
-            {/* BACKGROUND GLOW - Dibuat pointer-events-none agar tidak menghalangi klik */}
+            {/* BACKGROUND GLOW */}
             <div className="pointer-events-none absolute top-0 left-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] -z-10 animate-pulse"></div>
             <div className="pointer-events-none absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] -z-10"></div>
 
-            {/* NAVBAR - Diperkuat dengan z-[100] dan relative agar selalu di depan */}
+            {/* NAVBAR */}
             <nav className="relative z-[100] border-b border-white/5 bg-slate-900/80 backdrop-blur-xl sticky top-0 shadow-2xl">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-20 justify-between items-center">
@@ -66,6 +65,18 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <span>Kelola Buku</span>
                                     </div>
                                 </NavLink>
+
+                                {/* MENU TRANSAKSI BARU */}
+                                <NavLink 
+                                    href={route('transactions.index')} 
+                                    active={route().current('transactions.*')}
+                                    className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <BookmarkCheck size={18} />
+                                        <span>Transaksi Pinjam</span>
+                                    </div>
+                                </NavLink>
                             </div>
                         </div>
 
@@ -74,7 +85,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Dropdown>
                                 <Dropdown.Trigger>
                                     <button className="flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all duration-300 shadow-inner">
-                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-black text-sm shadow-lg uppercase">
+                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-black text-sm shadow-lg uppercase text-white">
                                             {user.name.charAt(0)}
                                         </div>
                                         <span className="font-bold text-sm tracking-tight">{user.name}</span>
@@ -113,11 +124,12 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="space-y-1 pb-3 pt-2">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</ResponsiveNavLink>
                         <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>Kelola Buku</ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('transactions.index')} active={route().current('transactions.*')}>Transaksi Pinjam</ResponsiveNavLink>
                     </div>
                 </div>
             </nav>
 
-            {/* HEADER AREA - Z-Index 10 agar di depan glow tapi di belakang navbar */}
+            {/* HEADER AREA */}
             {header && (
                 <header className="relative z-10">
                     <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8 font-black">
