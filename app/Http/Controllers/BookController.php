@@ -11,7 +11,7 @@ class BookController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Books/Index', [
-            'books' => Book::all()
+            'books' => \App\Models\Book::all()
         ]);
     }
 
