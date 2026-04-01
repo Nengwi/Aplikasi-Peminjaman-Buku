@@ -15,9 +15,9 @@ class TransactionController extends Controller
         return Inertia::render('Admin/Transactions/Index', [
             'transactions' => Transaction::with(['user', 'book'])
                 ->when($request->search, function ($query, $search) {
-                    $query->whereHas('user', function($q) use ($search) {
+                    $query->whereHas('user', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%");
-                    })->orWhereHas('book', function($q) use ($search) {
+                    })->orWhereHas('book', function ($q) use ($search) {
                         $q->where('judul', 'like', "%{$search}%");
                     });
                 })
@@ -65,14 +65,44 @@ class TransactionController extends Controller
     // TAMBAHKAN INI: Untuk fitur KEMBALIKAN BUKU
     public function update(Transaction $transaction)
     {
+        $tanggalPinjam = \Carbon\Carbon::parse($transaction->tanggal_pinjam);
+        $hariIni = now();
+        $selisihHari = $hariIni->diffInDays($tanggalPinjam);
+
+        $denda = 0;
+        if ($selisihHari > 7) {
+            $keterlambatan = $selisihHari - 7;
+            $denda = $keterlambatan * 1000; // Rp 1.000 per hari
+        }
+
         $transaction->update([
             'status' => 'kembali',
-            'tanggal_kembali' => now()
+            'tanggal_kembali' => now()->format('Y-m-d'),
+            'denda' => $denda
         ]);
 
-        // Tambah stok buku lagi
         $transaction->book->increment('stok');
 
-        return back()->with('message', 'Buku telah dikembalikan!');
+        return back()->with('message', $denda > 0
+            ? "Buku kembali! Denda keterlambatan: Rp " . number_format($denda, 0, ',', '.')
+            : "Buku kembali tepat waktu!");
     }
+
+    public function report()
+{
+    // Mengambil semua transaksi yang statusnya 'kembali'
+    // Lengkap dengan data user dan buku
+    $reports = Transaction::with(['user', 'book'])
+        ->where('status', 'kembali')
+        ->latest()
+        ->get();
+
+    // Menghitung total pendapatan dari denda
+    $total_pendapatan_denda = Transaction::sum('denda');
+
+    return Inertia::render('Admin/Reports/Index', [
+        'reports' => $reports,
+        'total_pendapatan' => $total_pendapatan_denda
+    ]);
+}
 }
