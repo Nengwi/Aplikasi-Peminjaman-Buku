@@ -1,9 +1,27 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, usePage, router } from '@inertiajs/react'; 
-import { Plus, Edit, Trash2, Book as BookIcon } from 'lucide-react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
+import { Plus, Edit, Trash2, Book as BookIcon, Search, X } from 'lucide-react'; // Tambah Search & X
+import { useState, useEffect } from 'react'; // Tambah ini
 
-export default function Index({ auth, books }) {
+export default function Index({ auth, books, filters }) { // Tambah filters di sini
     const { flash } = usePage().props;
+    
+    // State untuk pencarian
+    const [search, setSearch] = useState(filters.search || '');
+
+    // Logic pencarian otomatis (Debounce)
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            if (search !== (filters.search || '')) {
+                router.get(route('books.index'), { search: search }, { 
+                    preserveState: true, 
+                    replace: true 
+                });
+            }
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [search]);
 
     return (
         <AuthenticatedLayout
@@ -36,6 +54,31 @@ export default function Index({ auth, books }) {
                         </div>
                     )}
 
+                    {/* SEARCH BAR - Pindahkan ke sini (di atas tabel) */}
+                    <div className="mb-6 flex justify-end">
+                        <div className="relative w-full md:w-1/3 group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-blue-400 transition-colors">
+                                <Search size={18} />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Cari judul atau penulis..."
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all backdrop-blur-sm"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                            {search && (
+                                <button
+                                    onClick={() => setSearch('')}
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white"
+                                >
+                                    <X size={16} />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* TABLE CONTAINER */}
                     <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl relative">
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
 
@@ -78,8 +121,6 @@ export default function Index({ auth, books }) {
                                                     <span className="text-[10px] uppercase font-bold tracking-tighter text-gray-600">Eksemplar</span>
                                                 </div>
                                             </td>
-                                            
-                                            {/* BAGIAN OPSI HARUS DI DALAM TD */}
                                             <td className="p-8">
                                                 <div className="flex justify-end gap-3">
                                                     <Link
@@ -88,7 +129,6 @@ export default function Index({ auth, books }) {
                                                     >
                                                         <Edit size={20} />
                                                     </Link>
-
                                                     <button
                                                         onClick={() => {
                                                             if (confirm('Yakin ingin menghapus buku ini?')) {
@@ -104,14 +144,14 @@ export default function Index({ auth, books }) {
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan="5" className="p-32 text-center text-gray-600">
+                                            <td colSpan="5" className="p-32 text-center">
                                                 <div className="flex flex-col items-center gap-6">
                                                     <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-dashed border-white/10">
-                                                        <BookIcon size={48} className="opacity-20" />
+                                                        <BookIcon size={48} className="opacity-20 text-white" />
                                                     </div>
                                                     <div className="max-w-xs text-center">
-                                                        <p className="text-xl font-bold text-white">Belum Ada Koleksi</p>
-                                                        <p className="text-sm mt-2">Mulai tambahkan buku ke dalam database perpustakaan digital Anda.</p>
+                                                        <p className="text-xl font-bold text-white">Data Tidak Ditemukan</p>
+                                                        <p className="text-sm mt-2 text-gray-500">Coba gunakan kata kunci lain atau tambahkan koleksi baru.</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -123,7 +163,7 @@ export default function Index({ auth, books }) {
                     </div>
 
                     <div className="mt-8 flex justify-between items-center text-gray-500 text-sm font-bold px-4 uppercase tracking-widest">
-                        <span>Total Koleksi: {books.length} Buku</span>
+                        <span>Menampilkan {books.length} Buku</span>
                         <div className="flex items-center gap-2">
                             <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
                             <span>Sistem Siap Digunakan</span>

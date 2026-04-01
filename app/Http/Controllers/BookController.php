@@ -8,10 +8,17 @@ use Inertia\Inertia;
 
 class BookController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('Admin/Books/Index', [
-            'books' => \App\Models\Book::all()
+            'books' => Book::query()
+                ->when($request->search, function ($query, $search) {
+                    $query->where('judul', 'like', "%{$search}%")
+                        ->orWhere('penulis', 'like', "%{$search}%");
+                })
+                ->latest()
+                ->get(),
+            'filters' => $request->only(['search'])
         ]);
     }
 
