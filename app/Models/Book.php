@@ -19,4 +19,8 @@ class Book extends Model
         'tahun_terbit',
         'stok',
     ];
+
+    public function transactions() {
+    return $this->hasMany(Transaction::class);
+}
 }
