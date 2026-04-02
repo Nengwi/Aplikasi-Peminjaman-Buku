@@ -44,7 +44,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </span>
                             </Link>
 
-                            {/* NAVIGASI DESKTOP */}
+                            {/* NAVIGASI DESKTOP BERDASARKAN ROLE */}
                             <div className="hidden space-x-6 sm:flex sm:ms-4 relative z-[110]">
                                 <NavLink 
                                     href={route('dashboard')} 
@@ -57,56 +57,76 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </div>
                                 </NavLink>
 
-                                <NavLink 
-                                    href={route('books.index')} 
-                                    active={route().current('books.*')}
-                                    className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Book size={18} />
-                                        <span>Kelola Buku</span>
-                                    </div>
-                                </NavLink>
+                                {/* MENU KHUSUS ADMIN */}
+                                {user.role === 'admin' ? (
+                                    <>
+                                        <NavLink 
+                                            href={route('books.index')} 
+                                            active={route().current('books.*')}
+                                            className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <Book size={18} />
+                                                <span>Kelola Buku</span>
+                                            </div>
+                                        </NavLink>
 
-                                <NavLink 
-                                    href={route('transactions.index')} 
-                                    active={route().current('transactions.*')}
-                                    className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <BookmarkCheck size={18} />
-                                        <span>Transaksi</span>
-                                    </div>
-                                </NavLink>
+                                        <NavLink 
+                                            href={route('transactions.index')} 
+                                            active={route().current('transactions.*')}
+                                            className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <BookmarkCheck size={18} />
+                                                <span>Transaksi</span>
+                                            </div>
+                                        </NavLink>
 
-                                {/* MENU KELOLA ANGGOTA (BARU) */}
-                                <NavLink 
-                                    href={route('users.index')} 
-                                    active={route().current('users.*')}
-                                    className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Users size={18} />
-                                        <span>Kelola Anggota</span>
-                                    </div>
-                                </NavLink>
+                                        <NavLink 
+                                            href={route('users.index')} 
+                                            active={route().current('users.*')}
+                                            className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <Users size={18} />
+                                                <span>Kelola Anggota</span>
+                                            </div>
+                                        </NavLink>
 
-                                {/* MENU LAPORAN */}
-                                <NavLink 
-                                    href={route('reports.index')} 
-                                    active={route().current('reports.*')}
-                                    className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <FileText size={18} />
-                                        <span>Laporan</span>
-                                    </div>
-                                </NavLink>
+                                        <NavLink 
+                                            href={route('reports.index')} 
+                                            active={route().current('reports.*')}
+                                            className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <FileText size={18} />
+                                                <span>Laporan</span>
+                                            </div>
+                                        </NavLink>
+                                    </>
+                                ) : (
+                                    /* MENU KHUSUS USER/SISWA */
+                                    <NavLink 
+                                        href={route('books.index')} 
+                                        active={route().current('books.*')}
+                                        className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <Book size={18} />
+                                            <span>Katalog Buku</span>
+                                        </div>
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 
                         {/* KANAN: USER DROPDOWN */}
                         <div className="hidden sm:flex sm:items-center relative z-[110]">
+                            <div className="flex flex-col items-end mr-4">
+                                <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none mb-1">
+                                    {user.role}
+                                </span>
+                            </div>
                             <Dropdown>
                                 <Dropdown.Trigger>
                                     <button className="flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all duration-300 shadow-inner">
@@ -148,10 +168,17 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden bg-slate-900 border-t border-white/5 transition-all duration-300'}>
                     <div className="space-y-1 pb-3 pt-2 px-2">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>Kelola Buku</ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('transactions.index')} active={route().current('transactions.*')}>Transaksi</ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('users.index')} active={route().current('users.*')}>Kelola Anggota</ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('reports.index')} active={route().current('reports.*')}>Laporan</ResponsiveNavLink>
+                        
+                        {user.role === 'admin' ? (
+                            <>
+                                <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>Kelola Buku</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('transactions.index')} active={route().current('transactions.*')}>Transaksi</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('users.index')} active={route().current('users.*')}>Kelola Anggota</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('reports.index')} active={route().current('reports.*')}>Laporan</ResponsiveNavLink>
+                            </>
+                        ) : (
+                            <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>Katalog Buku</ResponsiveNavLink>
+                        )}
                     </div>
                 </div>
             </nav>
