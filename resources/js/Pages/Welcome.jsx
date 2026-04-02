@@ -124,7 +124,7 @@ export default function Welcome({ auth }) {
 
             {/* FOOTER */}
             <footer className="border-t border-white/5 py-10 mt-20 text-center text-gray-600 font-medium">
-                <p>&copy; 2026 PerpusPro Digital. All rights reserved.</p>
+                <p>&copy; 2026 PerpusPro Digital. By @dwimillaaa</p>
             </footer>
         </div>
     );

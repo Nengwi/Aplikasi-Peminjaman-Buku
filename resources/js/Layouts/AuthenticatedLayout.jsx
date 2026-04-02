@@ -9,9 +9,11 @@ import {
     Book, 
     BookmarkCheck, 
     User as UserIcon, 
+    Users, 
     LogOut,
     Menu,
-    X
+    X,
+    FileText
 } from 'lucide-react';
 
 export default function AuthenticatedLayout({ header, children }) {
@@ -22,17 +24,17 @@ export default function AuthenticatedLayout({ header, children }) {
     return (
         <div className="min-h-screen bg-[#0f172a] relative z-0 overflow-hidden font-sans">
             
-            {/* BACKGROUND GLOW */}
+            {/* BACKGROUND GLOW DEKORATIF */}
             <div className="pointer-events-none absolute top-0 left-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] -z-10 animate-pulse"></div>
             <div className="pointer-events-none absolute bottom-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] -z-10"></div>
 
-            {/* NAVBAR */}
+            {/* NAVBAR UTAMA */}
             <nav className="relative z-[100] border-b border-white/5 bg-slate-900/80 backdrop-blur-xl sticky top-0 shadow-2xl">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-20 justify-between items-center">
                         
                         <div className="flex items-center gap-10">
-                            {/* LOGO */}
+                            {/* LOGO PERPUSPRO */}
                             <Link href="/" className="flex items-center gap-2 group relative z-[110]">
                                 <div className="p-2.5 bg-blue-600 rounded-xl text-white shadow-lg shadow-blue-500/50 group-hover:rotate-6 transition-transform duration-300">
                                     <BookOpen size={24} />
@@ -66,7 +68,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </div>
                                 </NavLink>
 
-                                {/* MENU TRANSAKSI BARU */}
                                 <NavLink 
                                     href={route('transactions.index')} 
                                     active={route().current('transactions.*')}
@@ -74,7 +75,31 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     <div className="flex items-center gap-2">
                                         <BookmarkCheck size={18} />
-                                        <span>Transaksi Pinjam</span>
+                                        <span>Transaksi</span>
+                                    </div>
+                                </NavLink>
+
+                                {/* MENU KELOLA ANGGOTA (BARU) */}
+                                <NavLink 
+                                    href={route('users.index')} 
+                                    active={route().current('users.*')}
+                                    className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Users size={18} />
+                                        <span>Kelola Anggota</span>
+                                    </div>
+                                </NavLink>
+
+                                {/* MENU LAPORAN */}
+                                <NavLink 
+                                    href={route('reports.index')} 
+                                    active={route().current('reports.*')}
+                                    className="text-gray-400 hover:text-white transition-all duration-300 font-bold"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <FileText size={18} />
+                                        <span>Laporan</span>
                                     </div>
                                 </NavLink>
                             </div>
@@ -85,7 +110,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Dropdown>
                                 <Dropdown.Trigger>
                                     <button className="flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all duration-300 shadow-inner">
-                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-black text-sm shadow-lg uppercase text-white">
+                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-black text-sm shadow-lg uppercase text-white text-center">
                                             {user.name.charAt(0)}
                                         </div>
                                         <span className="font-bold text-sm tracking-tight">{user.name}</span>
@@ -119,30 +144,35 @@ export default function AuthenticatedLayout({ header, children }) {
                     </div>
                 </div>
 
-                {/* RESPONSIVE MENU (MOBILE) */}
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden bg-slate-900 border-t border-white/5'}>
-                    <div className="space-y-1 pb-3 pt-2">
+                {/* RESPONSIVE MENU (MOBILE VIEW) */}
+                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden bg-slate-900 border-t border-white/5 transition-all duration-300'}>
+                    <div className="space-y-1 pb-3 pt-2 px-2">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</ResponsiveNavLink>
                         <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>Kelola Buku</ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('transactions.index')} active={route().current('transactions.*')}>Transaksi Pinjam</ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('transactions.index')} active={route().current('transactions.*')}>Transaksi</ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('users.index')} active={route().current('users.*')}>Kelola Anggota</ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('reports.index')} active={route().current('reports.*')}>Laporan</ResponsiveNavLink>
                     </div>
                 </div>
             </nav>
 
-            {/* HEADER AREA */}
+            {/* AREA HEADER DINAMIS */}
             {header && (
                 <header className="relative z-10">
-                    <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8 font-black">
-                        {header}
+                    <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+                        <div className="font-black text-white">
+                            {header}
+                        </div>
                     </div>
                 </header>
             )}
 
-            {/* MAIN CONTENT AREA */}
+            {/* AREA KONTEN UTAMA */}
             <main className="relative z-10 pb-20">
                 {children}
             </main>
 
+            {/* FOOTER SEDERHANA */}
             <footer className="relative z-10 py-10 text-center text-gray-600 text-xs font-bold uppercase tracking-[0.3em]">
                 &copy; 2026 PerpusPro Digital System
             </footer>

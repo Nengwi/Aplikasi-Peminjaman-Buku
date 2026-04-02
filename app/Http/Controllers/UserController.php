@@ -12,13 +12,14 @@ class UserController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('Admin/Users/Index', [
-            'users' => User::when($request->search, function ($query, $search) {
+            'users' => User::query()
+                ->when($request->search, function ($query, $search) {
                     $query->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%");
                 })
                 ->latest()
                 ->get(),
-            'filters' => $request->only(['search'])
+            'filters' => $request->only(['search']) // Ini penting dikirim balik ke React
         ]);
     }
 
