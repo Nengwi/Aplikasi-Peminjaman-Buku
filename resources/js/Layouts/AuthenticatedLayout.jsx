@@ -21,8 +21,12 @@ export default function AuthenticatedLayout({ header, children }) {
     const user = auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
+    // LOGIKA PENGECEKAN ADMIN (Sesuai dengan database yang sudah dibersihkan)
+    // Sekarang mengunci ke email admin@gmail.com agar tidak tertukar lagi
+    const isAdmin = user.email === 'admin@gmail.com' || user.name === 'dwi admin' || user.role === 'admin';
+
     return (
-        <div className="min-h-screen bg-[#0f172a] relative z-0 overflow-hidden font-sans">
+        <div className="min-h-screen bg-[#0f172a] relative z-0 overflow-hidden font-sans text-slate-200">
             
             {/* BACKGROUND GLOW DEKORATIF */}
             <div className="pointer-events-none absolute top-0 left-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] -z-10 animate-pulse"></div>
@@ -44,7 +48,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </span>
                             </Link>
 
-                            {/* NAVIGASI DESKTOP BERDASARKAN ROLE */}
+                            {/* NAVIGASI DESKTOP */}
                             <div className="hidden space-x-6 sm:flex sm:ms-4 relative z-[110]">
                                 <NavLink 
                                     href={route('dashboard')} 
@@ -57,8 +61,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </div>
                                 </NavLink>
 
-                                {/* MENU KHUSUS ADMIN */}
-                                {user.role === 'admin' ? (
+                                {/* MENU BERDASARKAN ROLE */}
+                                {isAdmin ? (
                                     <>
                                         <NavLink 
                                             href={route('books.index')} 
@@ -105,7 +109,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                         </NavLink>
                                     </>
                                 ) : (
-                                    /* MENU KHUSUS USER/SISWA */
                                     <NavLink 
                                         href={route('books.index')} 
                                         active={route().current('books.*')}
@@ -124,13 +127,13 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="hidden sm:flex sm:items-center relative z-[110]">
                             <div className="flex flex-col items-end mr-4">
                                 <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none mb-1">
-                                    {user.role}
+                                    {isAdmin ? 'ADMINISTRATOR' : 'ANGGOTA PERPUS'}
                                 </span>
                             </div>
                             <Dropdown>
                                 <Dropdown.Trigger>
                                     <button className="flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-2xl text-white hover:bg-white/10 transition-all duration-300 shadow-inner">
-                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-black text-sm shadow-lg uppercase text-white text-center">
+                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center font-black text-sm shadow-lg uppercase text-white">
                                             {user.name.charAt(0)}
                                         </div>
                                         <span className="font-bold text-sm tracking-tight">{user.name}</span>
@@ -141,12 +144,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </Dropdown.Trigger>
 
                                 <Dropdown.Content align="right" contentClasses="bg-slate-900 border border-white/10 shadow-2xl py-2 overflow-hidden">
-                                    <Dropdown.Link href={route('profile.edit')} className="flex items-center gap-2 text-gray-300 hover:bg-blue-600 hover:text-white transition-colors py-3">
-                                        <UserIcon size={16} /> My Profile
+                                    <Dropdown.Link href={route('profile.edit')} className="flex items-center gap-2 text-gray-300 hover:bg-blue-600 hover:text-white transition-colors py-3 px-4">
+                                        <UserIcon size={16} /> Profil Saya
                                     </Dropdown.Link>
                                     <div className="border-t border-white/5 my-1"></div>
-                                    <Dropdown.Link href={route('logout')} method="post" as="button" className="flex items-center gap-2 text-red-400 hover:bg-red-600/10 transition-colors py-3 w-full text-left">
-                                        <LogOut size={16} /> Log Out
+                                    <Dropdown.Link href={route('logout')} method="post" as="button" className="flex items-center gap-2 text-red-400 hover:bg-red-600/10 transition-colors py-3 px-4 w-full text-left">
+                                        <LogOut size={16} /> Keluar Aplikasi
                                     </Dropdown.Link>
                                 </Dropdown.Content>
                             </Dropdown>
@@ -169,7 +172,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     <div className="space-y-1 pb-3 pt-2 px-2">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</ResponsiveNavLink>
                         
-                        {user.role === 'admin' ? (
+                        {isAdmin ? (
                             <>
                                 <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>Kelola Buku</ResponsiveNavLink>
                                 <ResponsiveNavLink href={route('transactions.index')} active={route().current('transactions.*')}>Transaksi</ResponsiveNavLink>
@@ -180,6 +183,16 @@ export default function AuthenticatedLayout({ header, children }) {
                             <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>Katalog Buku</ResponsiveNavLink>
                         )}
                     </div>
+
+                    {/* MOBILE USER INFO */}
+                    <div className="border-t border-white/5 pb-1 pt-4 px-4">
+                        <div className="text-base font-bold text-white">{user.name}</div>
+                        <div className="text-sm font-medium text-gray-500">{user.email}</div>
+                        <div className="mt-3 space-y-1">
+                            <ResponsiveNavLink href={route('profile.edit')}>Profil Saya</ResponsiveNavLink>
+                            <ResponsiveNavLink method="post" href={route('logout')} as="button">Keluar</ResponsiveNavLink>
+                        </div>
+                    </div>
                 </div>
             </nav>
 
@@ -187,7 +200,7 @@ export default function AuthenticatedLayout({ header, children }) {
             {header && (
                 <header className="relative z-10">
                     <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
-                        <div className="font-black text-white">
+                        <div className="font-black text-4xl tracking-tight text-white drop-shadow-sm">
                             {header}
                         </div>
                     </div>
@@ -199,9 +212,9 @@ export default function AuthenticatedLayout({ header, children }) {
                 {children}
             </main>
 
-            {/* FOOTER SEDERHANA */}
-            <footer className="relative z-10 py-10 text-center text-gray-600 text-xs font-bold uppercase tracking-[0.3em]">
-                &copy; 2026 PerpusPro Digital System
+            {/* FOOTER */}
+            <footer className="relative z-10 py-10 text-center text-gray-600 text-[10px] font-black uppercase tracking-[0.5em]">
+                &copy; 2026 PERPUSPRO DIGITAL SYSTEM • DEVELOPED BY DWI
             </footer>
         </div>
     );

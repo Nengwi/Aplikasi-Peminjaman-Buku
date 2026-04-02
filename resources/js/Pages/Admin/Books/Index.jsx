@@ -1,9 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Plus, Edit, Trash2, Book as BookIcon, Search, X } from 'lucide-react'; // Tambah Search & X
-import { useState, useEffect } from 'react'; // Tambah ini
+import { Plus, Edit, Trash2, Book as BookIcon, Search, X } from 'lucide-react'; 
+import { useState, useEffect } from 'react'; 
 
-export default function Index({ auth, books, filters }) { // Tambah filters di sini
+
+export default function Index({ auth, books, filters, can_manage }) { // Tambah can_manage di sini
     const { flash } = usePage().props;
     
     // State untuk pencarian
@@ -29,19 +30,27 @@ export default function Index({ auth, books, filters }) { // Tambah filters di s
             header={
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
-                        <h2 className="font-black text-4xl text-white tracking-tight">Koleksi Buku</h2>
-                        <p className="text-blue-400 font-medium mt-1">Kelola data buku perpustakaan Anda</p>
+                        <h2 className="font-black text-4xl text-white tracking-tight">
+                            {can_manage ? 'Kelola Buku' : 'Katalog Buku'}
+                        </h2>
+                        <p className="text-blue-400 font-medium mt-1">
+                            {can_manage ? 'Kelola data buku perpustakaan Anda' : 'Jelajahi koleksi buku kami'}
+                        </p>
                     </div>
-                    <Link
-                        href={route('books.create')}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-black transition shadow-xl shadow-blue-500/30 active:scale-95 hover:-translate-y-1"
-                    >
-                        <Plus size={20} /> TAMBAH BUKU
-                    </Link>
+                    
+                    {/* HANYA MUNCUL JIKA ADMIN */}
+                    {can_manage && (
+                        <Link
+                            href={route('books.create')}
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-black transition shadow-xl shadow-blue-500/30 active:scale-95 hover:-translate-y-1"
+                        >
+                            <Plus size={20} /> TAMBAH BUKU
+                        </Link>
+                    )}
                 </div>
             }
         >
-            <Head title="Kelola Buku" />
+            <Head title={can_manage ? "Kelola Buku" : "Katalog Buku"} />
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -54,7 +63,7 @@ export default function Index({ auth, books, filters }) { // Tambah filters di s
                         </div>
                     )}
 
-                    {/* SEARCH BAR - Pindahkan ke sini (di atas tabel) */}
+                    {/* SEARCH BAR */}
                     <div className="mb-6 flex justify-end">
                         <div className="relative w-full md:w-1/3 group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-blue-400 transition-colors">
@@ -90,7 +99,8 @@ export default function Index({ auth, books, filters }) { // Tambah filters di s
                                         <th className="p-8">Penerbit</th>
                                         <th className="p-8 text-center">Tahun</th>
                                         <th className="p-8 text-center">Stok</th>
-                                        <th className="p-8 text-right">Opsi</th>
+                                        {/* KOLOM OPSI HANYA UNTUK ADMIN */}
+                                        {can_manage && <th className="p-8 text-right">Opsi</th>}
                                     </tr>
                                 </thead>
                                 <tbody className="text-gray-300 divide-y divide-white/5">
@@ -121,37 +131,41 @@ export default function Index({ auth, books, filters }) { // Tambah filters di s
                                                     <span className="text-[10px] uppercase font-bold tracking-tighter text-gray-600">Eksemplar</span>
                                                 </div>
                                             </td>
-                                            <td className="p-8">
-                                                <div className="flex justify-end gap-3">
-                                                    <Link
-                                                        href={route('books.edit', book.id)}
-                                                        className="p-3 bg-amber-500/10 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-white transition-all shadow-lg"
-                                                    >
-                                                        <Edit size={20} />
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (confirm('Yakin ingin menghapus buku ini?')) {
-                                                                router.delete(route('books.destroy', book.id))
-                                                            }
-                                                        }}
-                                                        className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-lg"
-                                                    >
-                                                        <Trash2 size={20} />
-                                                    </button>
-                                                </div>
-                                            </td>
+                                            
+                                            {/* TOMBOL EDIT/HAPUS HANYA UNTUK ADMIN */}
+                                            {can_manage && (
+                                                <td className="p-8">
+                                                    <div className="flex justify-end gap-3">
+                                                        <Link
+                                                            href={route('books.edit', book.id)}
+                                                            className="p-3 bg-amber-500/10 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-white transition-all shadow-lg"
+                                                        >
+                                                            <Edit size={20} />
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (confirm('Yakin ingin menghapus buku ini?')) {
+                                                                    router.delete(route('books.destroy', book.id))
+                                                                }
+                                                            }}
+                                                            className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-lg"
+                                                        >
+                                                            <Trash2 size={20} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            )}
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan="5" className="p-32 text-center">
+                                            <td colSpan={can_manage ? "5" : "4"} className="p-32 text-center">
                                                 <div className="flex flex-col items-center gap-6">
                                                     <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-dashed border-white/10">
                                                         <BookIcon size={48} className="opacity-20 text-white" />
                                                     </div>
                                                     <div className="max-w-xs text-center">
                                                         <p className="text-xl font-bold text-white">Data Tidak Ditemukan</p>
-                                                        <p className="text-sm mt-2 text-gray-500">Coba gunakan kata kunci lain atau tambahkan koleksi baru.</p>
+                                                        <p className="text-sm mt-2 text-gray-500">Coba gunakan kata kunci lain.</p>
                                                     </div>
                                                 </div>
                                             </td>
