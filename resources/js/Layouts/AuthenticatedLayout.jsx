@@ -8,9 +8,7 @@ import {
     LayoutDashboard,
     Book,
     BookmarkCheck,
-    User as UserIcon,
     Users,
-    LogOut,
     Menu,
     X,
     FileText
@@ -21,7 +19,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const user = auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
-    // LOGIKA ADMIN: Pastikan ini sesuai dengan cara kamu menentukan admin
+    // LOGIKA ADMIN
     const isAdmin = user.role === 'admin' || user.email === 'admin@gmail.com';
 
     return (
@@ -55,11 +53,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </NavLink>
                                 )}
 
-                                {/* MENU BUKU (Teks Berbeda untuk Admin/User) */}
                                 <NavLink href={route('books.index')} active={route().current('books.*')} className="text-gray-400 hover:text-white font-bold">
                                     <div className="flex items-center gap-2">
                                         <Book size={18} /> 
-                                        <span>{isAdmin ? 'Kelola Buku' : 'Daftar Buku'}</span>
+                                        <span>{isAdmin ? 'Kelola Buku' : 'Katalog Buku'}</span>
                                     </div>
                                 </NavLink>
 
@@ -70,12 +67,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 <BookmarkCheck size={18} /> <span>Transaksi</span>
                                             </div>
                                         </NavLink>
+                                        
+                                        {/* SUDAH DIUBAH JADI PENGGUNA */}
                                         <NavLink href={route('users.index')} active={route().current('users.*')} className="text-gray-400 hover:text-white font-bold">
                                             <div className="flex items-center gap-2">
-                                                <Users size={18} /> <span>Anggota</span>
+                                                <Users size={18} /> <span>Pengguna</span>
                                             </div>
                                         </NavLink>
-                                        {/* MENU LAPORAN YANG TADI ILANG */}
+
                                         <NavLink href={route('reports.index')} active={route().current('reports.*')} className="text-gray-400 hover:text-white font-bold">
                                             <div className="flex items-center gap-2">
                                                 <FileText size={18} /> <span>Laporan</span>
@@ -90,7 +89,8 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="hidden sm:flex sm:items-center">
                             <div className="flex flex-col items-end mr-4">
                                 <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none mb-1">
-                                    {isAdmin ? 'ADMINISTRATOR' : 'SISWA'}
+                                    {/* STATUS SUDAH DIUBAH JADI PENGGUNA */}
+                                    {isAdmin ? 'ADMINISTRATOR' : 'PENGGUNA'}
                                 </span>
                             </div>
                             <Dropdown>
@@ -103,8 +103,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </button>
                                 </Dropdown.Trigger>
                                 <Dropdown.Content align="right" contentClasses="bg-slate-900 border border-white/10">
-                                    <Dropdown.Link href={route('profile.edit')} className="text-gray-300">My Profile</Dropdown.Link>
-                                    <Dropdown.Link href={route('logout')} method="post" as="button" className="text-red-400 font-bold">Log Out</Dropdown.Link>
+                                    <Dropdown.Link href={route('profile.edit')} className="text-gray-300">Profil Saya</Dropdown.Link>
+                                    <Dropdown.Link href={route('logout')} method="post" as="button" className="text-red-400 font-bold">Keluar</Dropdown.Link>
                                 </Dropdown.Content>
                             </Dropdown>
                         </div>
@@ -122,11 +122,11 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden bg-slate-900 border-t border-white/5'}>
                     <div className="pt-2 pb-3 space-y-1">
                         {isAdmin && <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>Dashboard</ResponsiveNavLink>}
-                        <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>{isAdmin ? 'Kelola Buku' : 'Daftar Buku'}</ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>{isAdmin ? 'Kelola Buku' : 'Katalog Buku'}</ResponsiveNavLink>
                         {isAdmin && (
                             <>
                                 <ResponsiveNavLink href={route('transactions.index')} active={route().current('transactions.*')}>Transaksi</ResponsiveNavLink>
-                                <ResponsiveNavLink href={route('users.index')} active={route().current('users.*')}>Anggota</ResponsiveNavLink>
+                                <ResponsiveNavLink href={route('users.index')} active={route().current('users.*')}>Pengguna</ResponsiveNavLink>
                                 <ResponsiveNavLink href={route('reports.index')} active={route().current('reports.*')}>Laporan</ResponsiveNavLink>
                             </>
                         )}

@@ -1,9 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Plus, Edit, Trash2, Book as BookIcon, Search, X } from 'lucide-react'; // Tambah Search & X
-import { useState, useEffect } from 'react'; // Tambah ini
+import { Plus, Edit, Trash2, Book as BookIcon, Search, X } from 'lucide-react'; 
+import { useState, useEffect } from 'react'; 
 
-export default function Index({ auth, books, filters }) { // Tambah filters di sini
+export default function Index({ auth, books, filters }) { 
     const { flash } = usePage().props;
 
     // State untuk pencarian
