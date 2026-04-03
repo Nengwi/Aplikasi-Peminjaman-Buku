@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'; // Tambah ini
 
 export default function Index({ auth, books, filters }) { // Tambah filters di sini
     const { flash } = usePage().props;
-    
+
     // State untuk pencarian
     const [search, setSearch] = useState(filters.search || '');
 
@@ -13,9 +13,9 @@ export default function Index({ auth, books, filters }) { // Tambah filters di s
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             if (search !== (filters.search || '')) {
-                router.get(route('books.index'), { search: search }, { 
-                    preserveState: true, 
-                    replace: true 
+                router.get(route('books.index'), { search: search }, {
+                    preserveState: true,
+                    replace: true
                 });
             }
         }, 500);
@@ -34,9 +34,10 @@ export default function Index({ auth, books, filters }) { // Tambah filters di s
                     </div>
                     <Link
                         href={route('books.create')}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-black transition shadow-xl shadow-blue-500/30 active:scale-95 hover:-translate-y-1"
+                        className="px-10 py-3 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(37,99,235,0.3)] active:scale-95 w-fit"
                     >
-                        <Plus size={20} /> TAMBAH BUKU
+                        <Plus size={16} />
+                        TAMBAH BUKU BARU
                     </Link>
                 </div>
             }

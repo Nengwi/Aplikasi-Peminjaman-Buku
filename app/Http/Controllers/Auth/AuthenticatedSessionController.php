@@ -30,10 +30,19 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Logika Redirect Pintar:
+        // Jika Admin, boleh ke Dashboard. Jika Siswa, WAJIB ke Books.
+        if ($user->hasRole('admin') || $user->email === 'admin@gmail.com') {
+            return redirect()->intended(route('dashboard'));
+        }
+
+        // Siswa langsung ke katalog buku
+        return redirect()->intended(route('books.index'));
     }
 
     /**

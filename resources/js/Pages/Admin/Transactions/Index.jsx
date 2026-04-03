@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
-import { Plus, BookmarkCheck, User as UserIcon, Book as BookIcon, Search, X, Calendar, ArrowRightLeft } from 'lucide-react';
+import { Plus, User as UserIcon, Book as BookIcon, Search, X, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Index({ auth, transactions, filters = {} }) {
@@ -11,9 +11,9 @@ export default function Index({ auth, transactions, filters = {} }) {
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             if (search !== (filters?.search || '')) {
-                router.get(route('transactions.index'), { search: search }, { 
-                    preserveState: true, 
-                    replace: true 
+                router.get(route('transactions.index'), { search: search }, {
+                    preserveState: true,
+                    replace: true
                 });
             }
         }, 500);
@@ -26,14 +26,16 @@ export default function Index({ auth, transactions, filters = {} }) {
             header={
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
-                        <h2 className="font-black text-4xl text-white tracking-tight">Riwayat Pinjam</h2>
-                        <p className="text-blue-400 font-medium mt-1">Pantau sirkulasi buku perpustakaan</p>
+                        <h2 className="font-black text-3xl text-white tracking-tight uppercase">Riwayat Pinjam</h2>
+                        <p className="text-blue-400 font-medium text-sm">Pantau sirkulasi buku perpustakaan</p>
                     </div>
+                    
+                    {/* TOMBOL HEADER YANG SUDAH DIKECILIN */}
                     <Link
                         href={route('transactions.create')}
-                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-black transition shadow-xl shadow-indigo-500/30 active:scale-95 hover:-translate-y-1"
+                        className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-black rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(79,70,229,0.4)] active:scale-95"
                     >
-                        <Plus size={20} /> PINJAM BUKU BARU
+                        <Plus size={18} /> PINJAM BUKU BARU
                     </Link>
                 </div>
             }
@@ -45,7 +47,7 @@ export default function Index({ auth, transactions, filters = {} }) {
 
                     {/* FLASH MESSAGE */}
                     {flash.message && (
-                        <div className="mb-8 p-5 bg-emerald-500/20 border border-emerald-500/50 rounded-[2rem] text-emerald-400 font-bold backdrop-blur-md flex items-center gap-3">
+                        <div className="mb-8 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400 text-sm font-bold flex items-center gap-3">
                             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
                             {flash.message}
                         </div>
@@ -53,86 +55,67 @@ export default function Index({ auth, transactions, filters = {} }) {
 
                     {/* SEARCH BAR */}
                     <div className="mb-6 flex justify-end">
-                        <div className="relative w-full md:w-1/3 group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-blue-400 transition-colors">
-                                <Search size={18} />
-                            </div>
+                        <div className="relative w-full md:w-80 group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-400" size={18} />
                             <input
                                 type="text"
-                                placeholder="Cari nama peminjam atau judul..."
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all backdrop-blur-sm"
+                                placeholder="Cari peminjam..."
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-12 pr-4 text-white text-sm focus:ring-2 focus:ring-blue-500/50 transition-all"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
-                            {search && (
-                                <button onClick={() => setSearch('')} className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500">
-                                    <X size={16} />
-                                </button>
-                            )}
                         </div>
                     </div>
 
                     {/* TABLE CONTAINER */}
-                    <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl relative">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-blue-500 to-emerald-500"></div>
-
+                    <div className="bg-[#0f172a] border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-white/5 text-blue-400 uppercase text-xs font-black tracking-[0.2em]">
-                                        <th className="p-8">Peminjam & Buku</th>
-                                        <th className="p-8 text-center">Tanggal Pinjam</th>
-                                        <th className="p-8 text-center">Status</th>
-                                        <th className="p-8 text-right">Opsi</th>
+                                    <tr className="bg-white/5 text-blue-400 uppercase text-[10px] font-black tracking-[0.2em]">
+                                        <th className="p-6">Peminjam & Buku</th>
+                                        <th className="p-6 text-center">Tanggal Pinjam</th>
+                                        <th className="p-6 text-center">Status</th>
+                                        <th className="p-6 text-right">Opsi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-gray-300 divide-y divide-white/5">
                                     {transactions.length > 0 ? transactions.map((trx) => (
-                                        <tr key={trx.id} className="hover:bg-white/10 transition-all group">
-                                            <td className="p-8">
-                                                <div className="flex flex-col gap-2">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                                                            <UserIcon size={16} />
-                                                        </div>
-                                                        <span className="text-white font-black text-lg">{trx.user?.name}</span>
+                                        <tr key={trx.id} className="hover:bg-white/[0.02] transition-all group">
+                                            <td className="p-6">
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <UserIcon size={14} className="text-blue-400" />
+                                                        <span className="text-white font-bold">{trx.user?.name}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-3 ml-1">
-                                                        <div className="w-px h-4 bg-white/20 ml-4"></div>
-                                                        <BookIcon size={14} className="text-gray-500" />
-                                                        <span className="text-sm text-gray-400 font-medium italic">{trx.book?.judul}</span>
+                                                    <div className="flex items-center gap-2 text-xs text-gray-500 italic">
+                                                        <BookIcon size={12} />
+                                                        <span>{trx.book?.judul}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="p-8 text-center">
-                                                <div className="flex flex-col items-center gap-1">
-                                                    <Calendar size={16} className="text-indigo-400" />
-                                                    <span className="font-bold text-white">{trx.tanggal_pinjam}</span>
-                                                </div>
+                                            <td className="p-6 text-center">
+                                                <span className="text-sm font-medium text-gray-400">{trx.tanggal_pinjam}</span>
                                             </td>
-                                            <td className="p-8 text-center">
-                                                <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                                            <td className="p-6 text-center">
+                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
                                                     trx.status === 'pinjam' 
-                                                    ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' 
-                                                    : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                                    ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' 
+                                                    : 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
                                                 }`}>
                                                     {trx.status}
                                                 </span>
                                             </td>
-                                            <td className="p-8 text-right">
-                                                {trx.status === 'pinjam' && (
-                                                    <button 
-                                                        className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-white transition-all shadow-lg flex items-center gap-2 ml-auto font-black text-xs"
-                                                        onClick={() => { if(confirm('Buku sudah dikembalikan?')) router.put(route('transactions.update', trx.id)) }}
-                                                    >
-                                                        <ArrowRightLeft size={16} /> KEMBALIKAN
-                                                    </button>
-                                                )}
+                                            <td className="p-6 text-right">
+                                                {/* TOMBOL ACTION (MISALNYA KEMBALIKAN) */}
+                                                <button className="text-[10px] font-black text-blue-400 hover:text-white transition-colors uppercase tracking-widest">
+                                                    Detail
+                                                </button>
                                             </td>
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan="4" className="p-32 text-center text-gray-600 font-bold">
+                                            <td colSpan="4" className="p-20 text-center text-gray-600 font-bold italic">
                                                 Belum ada data transaksi ditemukan.
                                             </td>
                                         </tr>

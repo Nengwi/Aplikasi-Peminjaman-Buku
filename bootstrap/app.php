@@ -16,9 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // TAMBAHKAN ALIAS DI SINI
+        // DAFTARKAN SEMUA ALIAS DI SINI
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            // TAMBAHKAN 3 BARIS INI (Sangat Penting!)
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

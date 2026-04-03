@@ -1,160 +1,138 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router } from '@inertiajs/react';
-import { Users, UserPlus, Trash2, Search, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Head, useForm } from '@inertiajs/react';
+import { UserPlus, Trash2, Mail, User as UserIcon, Search, X } from 'lucide-react';
+import { useState } from 'react'; // Tambahkan ini
+import Swal from 'sweetalert2';
 
 export default function Index({ auth, users, filters }) {
-    // 1. State untuk pencarian
-    const [search, setSearch] = useState(filters.search || '');
-    const [isSearching, setIsSearching] = useState(false);
+    const [showModal, setShowModal] = useState(false); // State untuk buka tutup modal
 
-    const { data, setData, post, reset, processing, errors } = useForm({
-        name: '', 
-        email: '', 
-        password: 'password123' // password default
+    const { data, setData, post, processing, reset, errors } = useForm({
+        name: '',
+        email: '',
+        password: '',
     });
 
-    // 2. Efek Debounce untuk Pencarian
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            if (search !== (filters.search || '')) {
-                setIsSearching(true);
-                router.get(
-                    route('users.index'),
-                    { search: search },
-                    { 
-                        preserveState: true, 
-                        replace: true,
-                        onFinish: () => setIsSearching(false) 
-                    }
-                );
+    const handleDelete = (id, name) => {
+        Swal.fire({
+            title: 'Hapus Anggota?',
+            text: `Data ${name} bakal hilang selamanya, Dwi!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                destroy(route('users.destroy', id), {
+                    onSuccess: () => Swal.fire('Terhapus!', 'Anggota berhasil dibuang.', 'success')
+                });
             }
-        }, 400); // Tunggu 0.4 detik setelah user berhenti mengetik
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [search]);
+        });
+    };
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('users.store'), { 
-            onSuccess: () => reset(),
-            preserveScroll: true
+        post(route('users.store'), {
+            onSuccess: () => {
+                setShowModal(false);
+                reset();
+                Swal.fire('Berhasil!', 'Anggota baru sudah terdaftar.', 'success');
+            },
         });
     };
 
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-black text-4xl text-white tracking-tight">Kelola Anggota</h2>}
+            header={<h2 className="font-black text-2xl text-white tracking-tighter uppercase">👥 Kelola Anggota</h2>}
         >
-            <Head title="Manajemen Anggota" />
+            <Head title="Kelola Anggota" />
 
-            <div className="py-12 px-4 max-w-7xl mx-auto">
-                
-                {/* BAGIAN ATAS: SEARCH BAR */}
-                <div className="mb-8 relative max-w-xl">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-blue-400">
-                        {isSearching ? (
-                            <Loader2 className="animate-spin" size={20} />
-                        ) : (
-                            <Search size={20} />
-                        )}
-                    </div>
-                    <input 
-                        type="text"
-                        placeholder="Cari nama atau email anggota..."
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-blue-500 transition-all shadow-2xl backdrop-blur-sm"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="py-12 bg-[#020617] min-h-screen">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     
-                    {/* FORM TAMBAH ANGGOTA */}
-                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-[2.5rem] h-fit sticky top-24">
-                        <h3 className="text-white font-black text-xl mb-6 flex items-center gap-2">
-                            <UserPlus className="text-blue-400" /> Tambah Siswa
-                        </h3>
-                        <form onSubmit={submit} className="space-y-4">
-                            <div>
-                                <input 
-                                    type="text" placeholder="Nama Lengkap"
-                                    className={`w-full bg-white/5 border ${errors.name ? 'border-red-500' : 'border-white/10'} rounded-2xl py-3 px-4 text-white focus:border-blue-500 transition`}
-                                    value={data.name} onChange={e => setData('name', e.target.value)}
-                                />
-                                {errors.name && <p className="text-red-500 text-xs mt-1 ml-2">{errors.name}</p>}
-                            </div>
-
-                            <div>
-                                <input 
-                                    type="email" placeholder="Email (untuk login)"
-                                    className={`w-full bg-white/5 border ${errors.email ? 'border-red-500' : 'border-white/10'} rounded-2xl py-3 px-4 text-white focus:border-blue-500 transition`}
-                                    value={data.email} onChange={e => setData('email', e.target.value)}
-                                />
-                                {errors.email && <p className="text-red-500 text-xs mt-1 ml-2">{errors.email}</p>}
-                            </div>
-
-                            <button 
-                                disabled={processing}
-                                className="w-full bg-blue-600 text-white font-black py-3 rounded-2xl hover:bg-blue-500 transition shadow-lg shadow-blue-600/20 disabled:opacity-50"
-                            >
-                                {processing ? 'MENYIMPAN...' : 'SIMPAN ANGGOTA'}
-                            </button>
-                        </form>
+                    {/* Header & Search */}
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                        <div className="relative w-full md:w-96">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 h-5 w-5" />
+                            <input 
+                                type="text" 
+                                placeholder="Cari nama atau email..."
+                                className="w-full bg-slate-900 border-2 border-blue-500/20 rounded-2xl py-3 pl-12 text-white focus:border-blue-500 transition-all outline-none"
+                            />
+                        </div>
+                        {/* TOMBOL TAMBAH SEKARANG BISA DIKLIK */}
+                        <button 
+                            onClick={() => setShowModal(true)}
+                            className="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] active:scale-95"
+                        >
+                            <UserPlus size={20} />
+                            TAMBAH ANGGOTA
+                        </button>
                     </div>
 
-                    {/* DAFTAR TABEL ANGGOTA */}
-                    <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl">
-                        <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                            <h3 className="text-white font-bold flex items-center gap-2">
-                                <Users size={18} className="text-blue-400" /> 
-                                Daftar Anggota ({users.length})
-                            </h3>
-                        </div>
-                        
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-white/5 text-blue-400 text-xs font-black uppercase tracking-widest">
-                                    <tr>
-                                        <th className="p-6">Nama & Email</th>
-                                        <th className="p-6 text-right">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5 text-gray-300">
-                                    {users.length > 0 ? (
-                                        users.map(user => (
-                                            <tr key={user.id} className="hover:bg-white/5 transition group">
-                                                <td className="p-6">
-                                                    <div className="font-bold text-white group-hover:text-blue-400 transition">{user.name}</div>
-                                                    <div className="text-sm text-gray-500">{user.email}</div>
-                                                </td>
-                                                <td className="p-6 text-right">
-                                                    {/* Admin tidak bisa hapus dirinya sendiri lewat sini (keamanan dasar) */}
-                                                    {auth.user.id !== user.id && (
-                                                        <button 
-                                                            onClick={() => confirm(`Hapus anggota ${user.name}?`) && router.delete(route('users.destroy', user.id))}
-                                                            className="text-red-400 hover:text-white hover:bg-red-600 p-2 rounded-xl transition"
-                                                            title="Hapus Anggota"
-                                                        >
-                                                            <Trash2 size={18} />
-                                                        </button>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan="2" className="p-10 text-center text-gray-500 italic">
-                                                Data anggota tidak ditemukan...
-                                            </td>
-                                        </tr>
+                    {/* Grid Daftar Anggota */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {users.map((user) => (
+                            <div key={user.id} className="group bg-slate-900 border-2 border-white/5 p-6 rounded-[32px] hover:border-blue-500/50 transition-all duration-300 relative overflow-hidden">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="p-4 bg-blue-600/20 rounded-2xl text-blue-400 border border-blue-500/20">
+                                        <UserIcon size={24} />
+                                    </div>
+                                    <div className="overflow-hidden">
+                                        <h3 className="text-white font-black text-lg truncate uppercase">{user.name}</h3>
+                                        <p className="text-slate-500 text-xs font-bold truncate italic tracking-tight underline">
+                                            {user.email}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex justify-between items-center pt-4 border-t border-white/5 text-white">
+                                     <span className="text-[10px] font-black tracking-widest text-blue-400 bg-blue-400/10 px-3 py-1 rounded-full uppercase">
+                                        Anggota Aktif
+                                    </span>
+                                    {user.email !== auth.user.email && (
+                                        <button onClick={() => handleDelete(user.id, user.name)} className="p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
+                                            <Trash2 size={20} />
+                                        </button>
                                     )}
-                                </tbody>
-                            </table>
-                        </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
 
+                    {/* MODAL FORM TAMBAH (Muncul pas diklik) */}
+                    {showModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                            <div className="bg-slate-900 border-2 border-blue-500/30 w-full max-w-md rounded-[32px] p-8 relative shadow-[0_0_50px_rgba(37,99,235,0.2)]">
+                                <button onClick={() => setShowModal(false)} className="absolute right-6 top-6 text-slate-500 hover:text-white">
+                                    <X size={24} />
+                                </button>
+                                <h3 className="text-2xl font-black text-white mb-6 uppercase tracking-tighter">Tambah Anggota Baru</h3>
+                                
+                                <form onSubmit={submit} className="space-y-4">
+                                    <div>
+                                        <label className="block text-blue-400 text-[10px] font-black mb-1 ml-1 uppercase">Nama Lengkap</label>
+                                        <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full bg-slate-800 border-none rounded-xl py-3 px-4 text-white focus:ring-2 focus:ring-blue-500 transition-all" required />
+                                        {errors.name && <p className="text-red-500 text-xs mt-1 font-bold">{errors.name}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-blue-400 text-[10px] font-black mb-1 ml-1 uppercase">Email Address</label>
+                                        <input type="email" value={data.email} onChange={e => setData('email', e.target.value)} className="w-full bg-slate-800 border-none rounded-xl py-3 px-4 text-white focus:ring-2 focus:ring-blue-500 transition-all" required />
+                                        {errors.email && <p className="text-red-500 text-xs mt-1 font-bold">{errors.email}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="block text-blue-400 text-[10px] font-black mb-1 ml-1 uppercase">Password</label>
+                                        <input type="password" value={data.password} onChange={e => setData('password', e.target.value)} className="w-full bg-slate-800 border-none rounded-xl py-3 px-4 text-white focus:ring-2 focus:ring-blue-500 transition-all" required />
+                                        {errors.password && <p className="text-red-500 text-xs mt-1 font-bold">{errors.password}</p>}
+                                    </div>
+                                    <button disabled={processing} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl mt-4 transition-all shadow-lg active:scale-95">
+                                        {processing ? 'MENYIMPAN...' : 'SIMPAN ANGGOTA'}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>
