@@ -10,7 +10,7 @@ class Book extends Model
     use HasFactory;
 
     /**
-     * Kolom yang boleh diisi secara massal (Mass Assignment).
+     
      */
     protected $fillable = [
         'judul',
@@ -18,9 +18,15 @@ class Book extends Model
         'penerbit',
         'tahun_terbit',
         'stok',
+        'kategori,'
     ];
 
-    public function transactions() {
-    return $this->hasMany(Transaction::class);
-}
+    /**
+     * Relasi ke model Transaction.
+     * Satu buku bisa memiliki banyak transaksi peminjaman.
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }

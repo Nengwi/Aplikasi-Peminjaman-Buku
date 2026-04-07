@@ -20,13 +20,18 @@ class BookController extends Controller
         // Cek Role Admin (Spatie atau Email khusus)
         $isAdmin = $user && ($user->hasRole('admin') || $user->email === 'admin@gmail.com');
 
-        // Logika Pencarian: Bisa mencari judul atau penulis
+        // Logika Filter & Pencarian
         $books = Book::query()
+            // 1. Filter Pencarian Judul/Penulis
             ->when($request->search, function ($query, $search) {
                 $query->where(function($q) use ($search) {
                     $q->where('judul', 'like', "%{$search}%")
                       ->orWhere('penulis', 'like', "%{$search}%");
                 });
+            })
+            // 2. Filter Kategori (Genre)
+            ->when($request->category, function ($query, $category) {
+                $query->where('kategori', $category);
             })
             ->latest()
             ->get();
@@ -34,7 +39,7 @@ class BookController extends Controller
         // Data yang selalu dikirim ke kedua tampilan
         $commonData = [
             'books' => $books,
-            'filters' => $request->only(['search']), // Penting: agar input search di React tidak reset
+            'filters' => $request->only(['search', 'category']), // Filter kategori juga ikut dikirim balik
             'flash' => [
                 'message' => session('message'),
                 'error' => session('error'),
@@ -46,7 +51,7 @@ class BookController extends Controller
             return Inertia::render('Admin/Books/Index', $commonData);
         }
 
-        // 2. Tampilan untuk USER/SISWA (Katalog Kartu)
+        // 2. Tampilan untuk PENGGUNA (Katalog Kartu)
         return Inertia::render('User/Books/Index', $commonData);
     }
 
@@ -75,6 +80,7 @@ class BookController extends Controller
             'penulis' => 'required|string|max:255',
             'penerbit' => 'required|string|max:255',
             'tahun_terbit' => 'required|numeric',
+            'kategori' => 'nullable|string|max:100', // Tambahkan validasi kategori
             'stok' => 'required|numeric|min:0',
         ]);
 
@@ -108,6 +114,7 @@ class BookController extends Controller
             'penulis' => 'required|string|max:255',
             'penerbit' => 'required|string|max:255',
             'tahun_terbit' => 'required|numeric',
+            'kategori' => 'nullable|string|max:100', // Tambahkan validasi kategori
             'stok' => 'required|numeric|min:0',
         ]);
 
