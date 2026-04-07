@@ -17,30 +17,37 @@ class BookController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
         
-        // Logika Admin: Cek Role Spatie ATAU Email khusus
+        // Cek Role Admin (Spatie atau Email khusus)
         $isAdmin = $user && ($user->hasRole('admin') || $user->email === 'admin@gmail.com');
 
+        // Logika Pencarian: Bisa mencari judul atau penulis
         $books = Book::query()
             ->when($request->search, function ($query, $search) {
-                $query->where('judul', 'like', "%{$search}%")
-                    ->orWhere('penulis', 'like', "%{$search}%");
+                $query->where(function($q) use ($search) {
+                    $q->where('judul', 'like', "%{$search}%")
+                      ->orWhere('penulis', 'like', "%{$search}%");
+                });
             })
             ->latest()
             ->get();
 
-        // 1. Tampilan untuk ADMIN (Folder Admin - View Tabel)
+        // Data yang selalu dikirim ke kedua tampilan
+        $commonData = [
+            'books' => $books,
+            'filters' => $request->only(['search']), // Penting: agar input search di React tidak reset
+            'flash' => [
+                'message' => session('message'),
+                'error' => session('error'),
+            ],
+        ];
+
+        // 1. Tampilan untuk ADMIN (Tabel)
         if ($isAdmin) {
-            return Inertia::render('Admin/Books/Index', [
-                'books' => $books,
-                'filters' => $request->only(['search']),
-                'can_manage' => true
-            ]);
+            return Inertia::render('Admin/Books/Index', $commonData);
         }
 
-        // 2. Tampilan untuk USER/SISWA (Folder User - View Kartu/Grid)
-        return Inertia::render('User/Books/Index', [
-            'books' => $books
-        ]);
+        // 2. Tampilan untuk USER/SISWA (Katalog Kartu)
+        return Inertia::render('User/Books/Index', $commonData);
     }
 
     /**
@@ -68,7 +75,7 @@ class BookController extends Controller
             'penulis' => 'required|string|max:255',
             'penerbit' => 'required|string|max:255',
             'tahun_terbit' => 'required|numeric',
-            'stok' => 'required|numeric',
+            'stok' => 'required|numeric|min:0',
         ]);
 
         Book::create($request->all());
@@ -88,9 +95,7 @@ class BookController extends Controller
             return redirect()->route('books.index');
         }
 
-        return Inertia::render('Admin/Books/Edit', [
-            'book' => $book
-        ]);
+        return Inertia::render('Admin/Books/Edit', ['book' => $book]);
     }
 
     /**
@@ -103,7 +108,7 @@ class BookController extends Controller
             'penulis' => 'required|string|max:255',
             'penerbit' => 'required|string|max:255',
             'tahun_terbit' => 'required|numeric',
-            'stok' => 'required|numeric',
+            'stok' => 'required|numeric|min:0',
         ]);
 
         $book->update($request->all());
@@ -124,7 +129,6 @@ class BookController extends Controller
         }
 
         $book->delete();
-
-        return redirect()->route('books.index')->with('message', 'Buku telah dihapus dari koleksi.');
+        return redirect()->route('books.index')->with('message', 'Buku telah dihapus.');
     }
 }

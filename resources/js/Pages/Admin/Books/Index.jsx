@@ -2,14 +2,13 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage, router } from '@inertiajs/react';
 import { Plus, Edit, Trash2, Book as BookIcon, Search, X } from 'lucide-react'; 
 import { useState, useEffect } from 'react'; 
+import Swal from 'sweetalert2';
 
 export default function Index({ auth, books, filters }) { 
     const { flash } = usePage().props;
 
-    // State untuk pencarian
     const [search, setSearch] = useState(filters.search || '');
 
-    // Logic pencarian otomatis (Debounce)
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             if (search !== (filters.search || '')) {
@@ -22,6 +21,66 @@ export default function Index({ auth, books, filters }) {
 
         return () => clearTimeout(delayDebounceFn);
     }, [search]);
+
+    const handleDelete = (id, judul) => {
+        Swal.fire({
+            title: 'Hapus Buku?',
+            text: `Buku "${judul}" akan dihapus permanen dari sistem.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal',
+            background: '#0f172a',
+            color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route('books.destroy', id), {
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Terhapus!',
+                            text: 'Data buku berhasil dihilangkan.',
+                            icon: 'success',
+                            background: '#0f172a',
+                            color: '#fff'
+                        });
+                    }
+                });
+            }
+        });
+    };
+
+    const handlePinjam = (bookId, judul) => {
+        Swal.fire({
+            title: 'Pinjam Buku?',
+            text: `Apakah kamu ingin meminjam buku "${judul}"?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Pinjam!',
+            cancelButtonText: 'Batal',
+            background: '#0f172a',
+            color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(route('transactions.store'), {
+                    book_id: bookId
+                }, {
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Buku berhasil dipinjam.',
+                            icon: 'success',
+                            background: '#0f172a',
+                            color: '#fff'
+                        });
+                    }
+                });
+            }
+        });
+    };
 
     return (
         <AuthenticatedLayout
@@ -47,15 +106,13 @@ export default function Index({ auth, books, filters }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-                    {/* NOTIFIKASI FLASH */}
-                    {flash.message && (
-                        <div className="mb-8 p-5 bg-emerald-500/20 border border-emerald-500/50 rounded-[2rem] text-emerald-400 font-bold backdrop-blur-md flex items-center gap-3 animate-bounce">
-                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
-                            {flash.message}
+                    {(flash.message || flash.error) && (
+                        <div className={`mb-8 p-5 ${flash.error ? 'bg-red-500/20 border-red-500/50 text-red-400' : 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400'} border rounded-[2rem] font-bold backdrop-blur-md flex items-center gap-3 animate-pulse`}>
+                            <div className={`w-2 h-2 ${flash.error ? 'bg-red-500' : 'bg-emerald-500'} rounded-full animate-ping`}></div>
+                            {flash.message || flash.error}
                         </div>
                     )}
 
-                    {/* SEARCH BAR - Pindahkan ke sini (di atas tabel) */}
                     <div className="mb-6 flex justify-end">
                         <div className="relative w-full md:w-1/3 group">
                             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-blue-400 transition-colors">
@@ -79,7 +136,6 @@ export default function Index({ auth, books, filters }) {
                         </div>
                     </div>
 
-                    {/* TABLE CONTAINER */}
                     <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[3rem] overflow-hidden shadow-2xl relative">
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
 
@@ -124,37 +180,35 @@ export default function Index({ auth, books, filters }) {
                                             </td>
                                             <td className="p-8">
                                                 <div className="flex justify-end gap-3">
+
+                                                    <button
+                                                        onClick={() => handlePinjam(book.id, book.judul)}
+                                                        className="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition font-bold"
+                                                    >
+                                                        Pinjam
+                                                    </button>
+
                                                     <Link
                                                         href={route('books.edit', book.id)}
                                                         className="p-3 bg-amber-500/10 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-white transition-all shadow-lg"
                                                     >
                                                         <Edit size={20} />
                                                     </Link>
+
                                                     <button
-                                                        onClick={() => {
-                                                            if (confirm('Yakin ingin menghapus buku ini?')) {
-                                                                router.delete(route('books.destroy', book.id))
-                                                            }
-                                                        }}
+                                                        onClick={() => handleDelete(book.id, book.judul)}
                                                         className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-lg"
                                                     >
                                                         <Trash2 size={20} />
                                                     </button>
+
                                                 </div>
                                             </td>
                                         </tr>
                                     )) : (
                                         <tr>
                                             <td colSpan="5" className="p-32 text-center">
-                                                <div className="flex flex-col items-center gap-6">
-                                                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-dashed border-white/10">
-                                                        <BookIcon size={48} className="opacity-20 text-white" />
-                                                    </div>
-                                                    <div className="max-w-xs text-center">
-                                                        <p className="text-xl font-bold text-white">Data Tidak Ditemukan</p>
-                                                        <p className="text-sm mt-2 text-gray-500">Coba gunakan kata kunci lain atau tambahkan koleksi baru.</p>
-                                                    </div>
-                                                </div>
+                                                <p className="text-white text-xl font-bold">Data Tidak Ditemukan</p>
                                             </td>
                                         </tr>
                                     )}
@@ -170,6 +224,7 @@ export default function Index({ auth, books, filters }) {
                             <span>Sistem Siap Digunakan</span>
                         </div>
                     </div>
+
                 </div>
             </div>
         </AuthenticatedLayout>
