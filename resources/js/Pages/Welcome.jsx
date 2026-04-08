@@ -59,9 +59,6 @@ export default function Welcome({ auth }) {
                             <Link href={route('register')} className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-black text-lg flex items-center gap-2 shadow-2xl shadow-blue-500/40 transition hover:-translate-y-1">
                                 Mulai Sekarang <ArrowRight size={20} />
                             </Link>
-                            <button className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 rounded-2xl font-black text-lg transition">
-                                Lihat Koleksi
-                            </button>
                         </div>
                     </div>
 
