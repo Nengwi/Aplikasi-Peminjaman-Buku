@@ -50,9 +50,3 @@ Pengelolaan data buku yang komprehensif tanpa perlu reload halaman.
 | **Tailwind CSS** | Utility-first CSS untuk styling modern |
 | **Lucide React** | Paket ikon minimalis dan elegan |
 | **MySQL** | Database Relasional untuk penyimpanan data aman |
-
-## 📦 Cara Instalasi
-
-1. **Clone Repo**
-   ```bash
-   git clone [https://github.com/Nengwi/Aplikasi-Peminjaman-Buku.git](https://github.com/Nengwi/Aplikasi-Peminjaman-Buku.git)
