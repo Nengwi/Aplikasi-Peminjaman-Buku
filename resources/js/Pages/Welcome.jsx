@@ -46,7 +46,7 @@ export default function Welcome({ auth }) {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                             </span>
-                            Perpustakaan Digital Masa Kini
+                            Peminjaman Buku Masa Kini
                         </div>
                         <h1 className="text-6xl lg:text-7xl font-black leading-tight italic">
                             Jendela Dunia <br />

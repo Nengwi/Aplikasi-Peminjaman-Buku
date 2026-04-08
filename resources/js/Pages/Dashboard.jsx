@@ -19,7 +19,7 @@ export default function Dashboard({ auth, stats }) {
                         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center text-white">
                             <div className="text-center md:text-left">
                                 <span className="bg-yellow-400 text-blue-900 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter mb-4 inline-block shadow-lg">
-                                    Sistem Perpustakaan v2.0
+                                    Sistem Perpustakaan
                                 </span>
                                 <h3 className="text-5xl font-black mb-2 leading-tight">Halo, {auth.user.name}! 🚀</h3>
                                 <p className="text-blue-100 text-lg font-medium opacity-90 max-w-md">
