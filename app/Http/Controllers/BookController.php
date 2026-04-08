@@ -29,17 +29,21 @@ class BookController extends Controller
                       ->orWhere('penulis', 'like', "%{$search}%");
                 });
             })
-            // 2. Filter Kategori (Genre)
+            // 2. Filter Kategori (Genre) - DIPERBARUI UNTUK MULTI-CATEGORY
             ->when($request->category, function ($query, $category) {
-                $query->where('kategori', $category);
+                // Jika kategori yang dipilih bukan 'Semua'
+                if ($category !== 'Semua') {
+                    // Menggunakan LIKE agar buku dengan banyak kategori tetap terjaring
+                    $query->where('kategori', 'like', "%{$category}%");
+                }
             })
             ->latest()
             ->get();
 
-        // Data yang selalu dikirim ke kedua tampilan
+        // Data yang dikirim ke tampilan
         $commonData = [
             'books' => $books,
-            'filters' => $request->only(['search', 'category']), // Filter kategori juga ikut dikirim balik
+            'filters' => $request->only(['search', 'category']),
             'flash' => [
                 'message' => session('message'),
                 'error' => session('error'),
@@ -75,16 +79,17 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'judul' => 'required|string|max:255',
-            'penulis' => 'required|string|max:255',
-            'penerbit' => 'required|string|max:255',
+        $validated = $request->validate([
+            'judul'        => 'required|string|max:255',
+            'penulis'      => 'required|string|max:255',
+            'penerbit'     => 'required|string|max:255',
             'tahun_terbit' => 'required|numeric',
-            'kategori' => 'nullable|string|max:100', // Tambahkan validasi kategori
-            'stok' => 'required|numeric|min:0',
+            'kategori'     => 'required|string', 
+            'stok'         => 'required|numeric|min:0',
+            'rak'          => 'nullable|string|max:100', // <-- Tambahan Field Rak
         ]);
 
-        Book::create($request->all());
+        Book::create($validated);
 
         return redirect()->route('books.index')->with('message', 'Buku berhasil ditambahkan!');
     }
@@ -109,16 +114,18 @@ class BookController extends Controller
      */
     public function update(Request $request, Book $book)
     {
-        $request->validate([
-            'judul' => 'required|string|max:255',
-            'penulis' => 'required|string|max:255',
-            'penerbit' => 'required|string|max:255',
+        $validated = $request->validate([
+            'judul'        => 'required|string|max:255',
+            'penulis'      => 'required|string|max:255',
+            'penerbit'     => 'required|string|max:255',
             'tahun_terbit' => 'required|numeric',
-            'kategori' => 'nullable|string|max:100', // Tambahkan validasi kategori
-            'stok' => 'required|numeric|min:0',
+            'kategori'     => 'required|string', 
+            'stok'         => 'required|numeric|min:0',
+            'rak'          => 'nullable|string|max:100', // <-- Tambahan Field Rak
         ]);
 
-        $book->update($request->all());
+        // Update data
+        $book->update($validated);
 
         return redirect()->route('books.index')->with('message', 'Data buku berhasil diperbarui!');
     }

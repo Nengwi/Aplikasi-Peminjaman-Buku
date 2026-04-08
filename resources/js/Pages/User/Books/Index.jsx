@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router } from '@inertiajs/react';
-import { ShoppingCart, BookOpen, Search, Tags } from 'lucide-react';
+import { ShoppingCart, BookOpen, Search, Tags, MapPin } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 
@@ -8,16 +8,12 @@ export default function Index({ auth, books, filters = {} }) {
     const { processing } = useForm();
 
     const [search, setSearch] = useState(filters.search || '');
-    // State untuk kategori yang sedang aktif
     const [selectedCategory, setSelectedCategory] = useState(filters.category || '');
 
-    // Daftar kategori yang akan muncul sebagai tombol
     const categories = ['Semua', 'Horor', 'Romance', 'Fiksi', 'Edukasi', 'Komik'];
 
-    // Logic Debounce Pencarian & Filter Kategori
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            // Kita kirim search DAN category sekaligus agar filter tidak tabrakan
             if (search !== (filters.search || '') || selectedCategory !== (filters.category || '')) {
                 router.get(route('books.index'), 
                     { 
@@ -51,7 +47,8 @@ export default function Index({ auth, books, filters = {} }) {
 
         Swal.fire({
             title: 'Konfirmasi Pinjam',
-            text: `Apakah Anda yakin ingin meminjam buku "${book.judul}"?`,
+            // Kita tambahkan info rak di pesan konfirmasi juga agar user ingat
+            text: `Pinjam buku "${book.judul}"? Silahkan ambil di ${book.rak || 'Rak Umum'}.`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#22d3ee',
@@ -67,7 +64,7 @@ export default function Index({ auth, books, filters = {} }) {
                     onSuccess: () => {
                         Swal.fire({
                             title: 'Berhasil!',
-                            text: 'Peminjaman Anda berhasil dicatat.',
+                            text: 'Peminjaman berhasil. Segera ambil buku di rak yang ditentukan.',
                             icon: 'success',
                             background: '#0f172a',
                             color: '#fff'
@@ -76,7 +73,7 @@ export default function Index({ auth, books, filters = {} }) {
                     onError: (err) => {
                         Swal.fire({
                             title: 'Gagal',
-                            text: err.error || 'Terjadi kesalahan saat menyimpan data.',
+                            text: err.error || 'Terjadi kesalahan.',
                             icon: 'error',
                             background: '#0f172a',
                             color: '#fff'
@@ -95,7 +92,7 @@ export default function Index({ auth, books, filters = {} }) {
                 {/* HEADER SECTION */}
                 <div className="mb-8 text-center">
                     <h2 className="text-4xl font-black text-white uppercase tracking-widest">Katalog Buku</h2>
-                    <p className="text-cyan-400 mt-2 italic font-medium">Pilih koleksi buku masa depan Anda di sini</p>
+                    <p className="text-cyan-400 mt-2 italic font-medium uppercase text-[10px] tracking-widest">Cek lokasi rak sebelum meminjam</p>
                     
                     {/* SEARCH BAR */}
                     <div className="mt-8 flex justify-center">
@@ -106,7 +103,7 @@ export default function Index({ auth, books, filters = {} }) {
                             <input
                                 type="text"
                                 placeholder="Cari judul buku atau penulis..."
-                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-900/50 border border-white/10 rounded-2xl text-white placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 backdrop-blur-xl transition-all shadow-2xl"
+                                className="block w-full pl-12 pr-4 py-3.5 bg-slate-900/50 border border-white/10 rounded-2xl text-white placeholder-slate-500 focus:ring-2 focus:ring-cyan-500/50 backdrop-blur-xl transition-all shadow-2xl"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -140,15 +137,24 @@ export default function Index({ auth, books, filters = {} }) {
                                 
                                 <div className="relative bg-slate-900 border border-white/10 rounded-[2.5rem] p-6 h-full flex flex-col shadow-2xl transition-all duration-300 group-hover:-translate-y-2 group-hover:border-cyan-500/50">
                                     
-                                    {/* BADGE KATEGORI DI ATAS KARTU */}
-                                    {book.kategori && (
-                                        <div className="absolute top-4 right-6 flex items-center gap-1 bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20">
-                                            <Tags size={10} className="text-cyan-400" />
-                                            <span className="text-[8px] font-bold text-cyan-400 uppercase tracking-tighter">{book.kategori}</span>
+                                    {/* BADGE KATEGORI & LOKASI RAK */}
+                                    <div className="flex flex-col gap-2 absolute top-4 right-6 items-end">
+                                        {book.kategori && (
+                                            <div className="flex items-center gap-1 bg-cyan-500/10 px-2 py-0.5 rounded-md border border-cyan-500/20">
+                                                <Tags size={8} className="text-cyan-400" />
+                                                <span className="text-[7px] font-bold text-cyan-400 uppercase tracking-tighter">{book.kategori}</span>
+                                            </div>
+                                        )}
+                                        {/* INFO LOKASI RAK */}
+                                        <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 shadow-sm">
+                                            <MapPin size={8} className="text-amber-400" />
+                                            <span className="text-[7px] font-black text-amber-400 uppercase tracking-tighter">
+                                                {book.rak || 'RAK-01'}
+                                            </span>
                                         </div>
-                                    )}
+                                    </div>
 
-                                    <div className="aspect-square bg-slate-800 rounded-3xl mb-5 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-all duration-500 shadow-inner">
+                                    <div className="aspect-square bg-slate-800 rounded-3xl mb-5 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-white transition-all duration-500 shadow-inner mt-4">
                                         <BookOpen size={50} />
                                     </div>
 
@@ -163,7 +169,7 @@ export default function Index({ auth, books, filters = {} }) {
 
                                     <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/5">
                                         <div className="flex flex-col">
-                                            <span className="text-[8px] text-slate-500 uppercase font-black tracking-tighter">Stok Tersedia</span>
+                                            <span className="text-[8px] text-slate-500 uppercase font-black tracking-tighter">Stok</span>
                                             <span className={`text-sm font-black ${book.stok > 0 ? 'text-emerald-400' : 'text-red-500'}`}>
                                                 {book.stok > 0 ? `${book.stok} Pcs` : 'HABIS'}
                                             </span>
@@ -189,7 +195,7 @@ export default function Index({ auth, books, filters = {} }) {
                         <div className="col-span-full text-center py-20">
                             <Search size={48} className="mx-auto text-slate-700 mb-4 opacity-20" />
                             <p className="text-slate-500 font-bold italic uppercase tracking-widest">
-                                Buku dengan kategori ini tidak ditemukan.
+                                Buku tidak ditemukan.
                             </p>
                         </div>
                     )}

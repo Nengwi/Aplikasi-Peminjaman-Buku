@@ -10,15 +10,18 @@ class Book extends Model
     use HasFactory;
 
     /**
-     
+     * Atribut yang dapat diisi secara massal.
+     * Ditambahkan 'rak' agar admin bisa mengatur lokasi buku.
      */
     protected $fillable = [
+        'category_id',
         'judul',
         'penulis',
         'penerbit',
         'tahun_terbit',
         'stok',
-        'kategori,'
+        'kategori',
+        'rak', 
     ];
 
     /**
